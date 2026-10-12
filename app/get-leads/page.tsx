@@ -30,7 +30,18 @@ export default function GetLeadsPage() {
         <StepsAccordion
           headline={page.howItWorks.headline}
           steps={page.howItWorks.steps}
-          visuals={[images.ui.list, images.ui.sms, images.ui.flow, images.ui.chat]}
+          scenes={[
+            {
+              name: "checklist",
+              labels: ["", "Your services", "Area", "Customer requirements", "Available appointment times"],
+            },
+            "ad",
+            {
+              name: "messages",
+              labels: ["Leads enter GoHighLevel", "Prompt SMS", "Email follow-up", "Booked into your calendar"],
+            },
+            "calendar",
+          ]}
         />
       </DarkShape>
       <OfferSplit

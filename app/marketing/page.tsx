@@ -38,7 +38,7 @@ export default function MarketingPage() {
       />
       <OfferCards headline={page.additions.headline} cards={page.additions.cards} />
       <Faq faqs={page.faqs} />
-      <ClosingCta headline={page.closing.headline} cta={page.closing.cta} visual={images.ui.flow} />
+      <ClosingCta headline={page.closing.headline} cta={page.closing.cta} />
       <JsonLd
         data={[
           serviceJsonLd({ name: "Marketing Team", description: meta[path].description, path }),

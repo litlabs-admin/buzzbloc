@@ -1,26 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/Icon";
 import { Lines } from "@/components/ui/Lines";
-import { ui } from "@/content/derived";
+import { ProgressLine } from "@/components/ui/ProgressLine";
+import { Scene } from "@/components/illustrations/Scene";
+import { useAutoCycle } from "@/lib/useAutoCycle";
 import type { TabItem } from "@/content/types";
 
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-function subscribeToMotion(onChange: () => void) {
-  const media = window.matchMedia(REDUCED_MOTION);
-  media.addEventListener("change", onChange);
-  return () => media.removeEventListener("change", onChange);
-}
-
 /**
- * Autoplaying tabs (DESIGN.md 4.8). Panels crossfade over 0.6s; the active tab's line
- * fills over 5s and then advances. Autoplay stops on manual selection, while off screen
- * and when reduced motion is requested. All panels are in the HTML.
- *  - "split": text beside a 4:3 image (pattern E)
+ * Auto-advancing tabs (DESIGN.md 4.8 and 6.11). Each tab shows for 5 seconds, then the
+ * next one fades in, looping for as long as the section is on screen. Nothing pauses on
+ * hover and there is no play or pause control; choosing a tab shows it and the loop
+ * carries on from there. Timing logic is in lib/useAutoCycle.ts.
+ * Every panel's text is in the HTML. Sized to fit one screen on desktop.
+ *  - "split": text beside the illustration on a light panel (pattern E)
  *  - "photo": dark panel over a background photo (pattern G)
  */
 export function FeatureTabs({
@@ -35,31 +31,17 @@ export function FeatureTabs({
   variant: "split" | "photo";
 }) {
   const baseId = useId();
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [inView, setInView] = useState(false);
-  const reducedMotion = useSyncExternalStore(
-    subscribeToMotion,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => true,
-  );
-  const rootRef = useRef<HTMLDivElement>(null);
+  const { rootRef, active, select, advance, running, animate, runKey } = useAutoCycle(items.length);
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
 
+  // Keep the active tab visible when the row is wider than the screen. Only the row
+  // scrolls sideways; the page itself never moves.
   useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.25 });
-    observer.observe(root);
-    return () => observer.disconnect();
-  }, []);
-
-  const autoplay = !paused && !reducedMotion;
-
-  const select = (index: number) => {
-    setActive(index);
-    setPaused(true);
-  };
+    const tab = tabs.current[active];
+    const row = tab?.parentElement;
+    if (!tab || !row || row.scrollWidth <= row.clientWidth) return;
+    row.scrollTo({ left: tab.offsetLeft - (row.clientWidth - tab.clientWidth) / 2, behavior: "smooth" });
+  }, [active]);
 
   const onKeyDown = (event: React.KeyboardEvent, index: number) => {
     const last = items.length - 1;
@@ -80,74 +62,57 @@ export function FeatureTabs({
   };
 
   return (
-    <div ref={rootRef} id={id} className="u-container py-sec">
-      <h2 className="type-h3 max-w-[20ch]">
+    <div ref={rootRef} id={id} data-running={running} className="u-container py-sec">
+      <h2 className="type-h3 max-w-[34ch]">
         <Lines lines={headline} />
       </h2>
 
-      <div className="mt-s11 flex items-start justify-between gap-s6">
-        <div
-          role="tablist"
-          aria-label={headline.join(" ")}
-          className="no-scrollbar -mx-margin flex min-w-0 flex-1 gap-s9 overflow-x-auto px-margin lg:mx-0 lg:px-0"
-        >
-          {items.map((item, index) => {
-            const selected = index === active;
-            return (
-              <button
-                key={item.title}
-                ref={(el) => {
-                  tabs.current[index] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`${baseId}-tab-${index}`}
-                aria-selected={selected}
-                aria-controls={`${baseId}-panel-${index}`}
-                tabIndex={selected ? 0 : -1}
-                onClick={() => select(index)}
-                onKeyDown={(event) => onKeyDown(event, index)}
-                className={cn(
-                  "relative flex flex-none cursor-pointer items-start gap-s4 pb-s6 transition-colors duration-200",
-                  selected ? "text-fg" : "text-tab hover:text-tab-hover",
-                )}
-              >
-                <Icon name={item.icon} className="mt-1 size-5 flex-none md:mt-[0.4rem]" />
-                <span className="whitespace-nowrap font-semi text-tab-sm font-semibold lg:text-tab">{item.title}</span>
-                {selected ? (
-                  <span
-                    key={autoplay ? "auto" : "manual"}
-                    onAnimationEnd={() => setActive((current) => (current + 1) % items.length)}
-                    style={{ animationPlayState: inView ? "running" : "paused" }}
-                    className={cn(
-                      "absolute bottom-0 left-0 h-0.5 w-full origin-left bg-current",
-                      autoplay && "tab-progress",
-                    )}
-                  />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-
-        <button
-          type="button"
-          aria-pressed={!paused}
-          onClick={() => setPaused((value) => !value)}
-          className={cn(
-            "type-small hidden h-[1.88rem] w-[5.63rem] flex-none cursor-pointer items-center justify-center gap-s3 rounded-sm bg-surface font-semibold transition-colors duration-200 hover:bg-surface-slate",
-            !reducedMotion && "lg:flex",
-          )}
-        >
-          <span className="sr-only">{ui.tabsToggle}: </span>
-          <Icon name={paused ? "play" : "pause"} className="w-3 flex-none" />
-          {paused ? ui.tabsPlay : ui.tabsPause}
-        </button>
-      </div>
-
-      <div className="grid border-t border-hairline">
+      <div
+        role="tablist"
+        aria-label={headline.join(" ")}
+        className="no-scrollbar relative -mx-margin mt-s9 flex gap-s9 overflow-x-auto border-b border-hairline px-margin lg:mx-0 lg:px-0"
+      >
         {items.map((item, index) => {
           const selected = index === active;
+          return (
+            <button
+              key={item.title}
+              ref={(el) => {
+                tabs.current[index] = el;
+              }}
+              type="button"
+              role="tab"
+              id={`${baseId}-tab-${index}`}
+              aria-selected={selected}
+              aria-controls={`${baseId}-panel-${index}`}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => select(index)}
+              onKeyDown={(event) => onKeyDown(event, index)}
+              className={cn(
+                "relative flex flex-none cursor-pointer items-start gap-s4 pb-s5 transition-colors duration-200",
+                selected ? "text-fg" : "text-tab hover:text-tab-hover",
+              )}
+            >
+              <Icon name={item.icon} className="mt-1 size-5 flex-none" />
+              <span className="whitespace-nowrap font-semi text-tab-sm font-semibold">{item.title}</span>
+              {selected ? (
+                <ProgressLine
+                  key={runKey}
+                  animate={animate}
+                  running={running}
+                  onDone={advance}
+                  className="absolute bottom-0 left-0 h-0.5 w-full"
+                />
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid pt-s6">
+        {items.map((item, index) => {
+          const selected = index === active;
+          const scene = <Scene key={selected ? runKey : "idle"} spec={item.scene} />;
           return (
             <div
               key={item.title}
@@ -157,60 +122,35 @@ export function FeatureTabs({
               aria-hidden={!selected}
               inert={!selected}
               className={cn(
-                "col-start-1 row-start-1 pt-s5 transition-opacity duration-[600ms] ease-out",
+                "col-start-1 row-start-1 transition-opacity duration-[600ms] ease-out",
                 selected ? "opacity-100" : "pointer-events-none opacity-0",
               )}
             >
               {variant === "split" ? (
-                <div className="flex flex-col gap-s8 lg:flex-row lg:items-center lg:gap-s11">
-                  <div className="flex flex-col items-start lg:w-[46%]">
-                    <Icon name={item.icon} className="size-12" />
-                    <h3 className="type-h4 mb-s7 mt-s8">{item.title}</h3>
-                    <p className="type-medium max-w-[60ch]">{item.text}</p>
+                <div className="grid items-center gap-s8 lg:grid-cols-[2fr_3fr] lg:gap-s11">
+                  <div className="flex flex-col items-start">
+                    <Icon name={item.icon} className="size-10" />
+                    <h3 className="type-h4 mb-s5 mt-s6">{item.title}</h3>
+                    <p className="type-medium max-w-[46ch]">{item.text}</p>
                   </div>
-                  <div className="relative aspect-[16/9] w-full overflow-clip rounded-lg bg-ash-300 lg:aspect-[4/3] lg:flex-1">
-                    <Image
-                      src={item.photo}
-                      alt=""
-                      fill
-                      sizes="(min-width: 62rem) 50vw, 100vw"
-                      className="object-cover"
-                    />
-                    <Image
-                      src={item.overlay}
-                      alt=""
-                      fill
-                      sizes="(min-width: 62rem) 50vw, 100vw"
-                      className="object-contain object-right"
-                    />
+                  <div className="h-[17rem] overflow-clip rounded-lg bg-surface-grey sm:h-[20rem] lg:h-[min(22rem,48svh)]">
+                    {scene}
                   </div>
                 </div>
               ) : (
                 <div
                   data-theme="dark"
-                  className="relative isolate flex flex-col gap-s8 overflow-clip rounded-lg bg-brand-950 px-margin py-s11 lg:flex-row lg:items-center lg:justify-between lg:gap-s11 lg:py-s9"
+                  className="relative isolate grid items-center gap-s8 overflow-clip rounded-lg bg-brand-950 px-margin py-s9 lg:grid-cols-[2fr_3fr] lg:gap-s11 lg:py-0"
                 >
-                  <Image
-                    src={item.photo}
-                    alt=""
-                    fill
-                    sizes="100vw"
-                    className="-z-20 object-cover"
-                  />
-                  <div className="absolute inset-0 -z-10 bg-black/50" aria-hidden="true" />
-                  <div className="w-full lg:max-w-[27.3rem]">
-                    <h3 className="type-h4 mb-s7">{item.title}</h3>
-                    <p className="type-medium max-w-[60ch]">{item.text}</p>
+                  {item.photo ? (
+                    <Image src={item.photo} alt="" fill sizes="100vw" className="-z-20 object-cover" />
+                  ) : null}
+                  <div className="absolute inset-0 -z-10 bg-black/60" aria-hidden="true" />
+                  <div>
+                    <h3 className="type-h4 mb-s5">{item.title}</h3>
+                    <p className="type-medium max-w-[46ch]">{item.text}</p>
                   </div>
-                  <div className="relative mx-auto aspect-[4/5] w-full max-w-[18rem] flex-none lg:mx-0 lg:max-w-[22rem]">
-                    <Image
-                      src={item.overlay}
-                      alt=""
-                      fill
-                      sizes="22rem"
-                      className="object-contain"
-                    />
-                  </div>
+                  <div className="h-[17rem] sm:h-[20rem] lg:h-[min(22rem,48svh)]">{scene}</div>
                 </div>
               )}
             </div>

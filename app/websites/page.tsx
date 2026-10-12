@@ -10,7 +10,6 @@ import { Faq } from "@/components/sections/Faq";
 import { ClosingCta } from "@/components/sections/ClosingCta";
 import { JsonLd } from "@/components/ui/JsonLd";
 import * as page from "@/content/websites";
-import { images } from "@/content/images";
 import { meta } from "@/content/derived";
 import { breadcrumbJsonLd, pageMetadata, serviceJsonLd } from "@/lib/seo";
 
@@ -40,11 +39,15 @@ export default function WebsitesPage() {
         <StepsAccordion
           headline={page.process.headline}
           steps={page.process.steps}
-          visuals={[images.ui.list, images.ui.workspace, images.ui.flow]}
+          scenes={[
+            { name: "checklist", labels: ["Plan it", "Your goals", "Pages", "The action visitors should take"] },
+            "browser",
+            "phone",
+          ]}
         />
       </DarkShape>
       <Faq faqs={page.faqs} />
-      <ClosingCta headline={page.closing.headline} cta={page.closing.cta} visual={images.ui.workspace} />
+      <ClosingCta headline={page.closing.headline} cta={page.closing.cta} />
       <JsonLd
         data={[
           serviceJsonLd({ name: "Websites", description: meta[path].description, path }),

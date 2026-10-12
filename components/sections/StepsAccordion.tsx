@@ -1,27 +1,32 @@
 "use client";
 
-import Image, { type StaticImageData } from "next/image";
-import { useId, useRef, useState } from "react";
+import { useId, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { Lines } from "@/components/ui/Lines";
+import { ProgressLine } from "@/components/ui/ProgressLine";
+import { Scene, type SceneSpec } from "@/components/illustrations/Scene";
+import { useAutoCycle } from "@/lib/useAutoCycle";
 import type { TitledText } from "@/content/types";
 
 /**
- * Big accordion (DESIGN.md 4.11, pattern I). One step open at a time, the first open on
- * load. Every answer stays in the HTML; closed answers collapse with a grid-row
- * transition. The visual on the right crossfades to the active step.
+ * Steps accordion (DESIGN.md 4.11 and 6.11, pattern I). One step is open at a time.
+ * Step one starts when the section scrolls into view; each step shows for 5 seconds
+ * (the lime line below it is the timer), then the next opens, looping back to the first.
+ * Choosing a step opens it and restarts its 5 seconds. Hover does nothing.
+ * Timing logic is in lib/useAutoCycle.ts. Every answer stays in the HTML.
+ * Sized to fit one screen on desktop; the illustration is hidden below lg.
  */
 export function StepsAccordion({
   headline,
   steps,
-  visuals,
+  scenes,
 }: {
   headline: readonly string[];
   steps: readonly TitledText[];
-  visuals: readonly StaticImageData[];
+  scenes: readonly SceneSpec[];
 }) {
   const baseId = useId();
-  const [active, setActive] = useState(0);
+  const { rootRef, active, select, advance, running, animate, runKey } = useAutoCycle(steps.length, 0.4);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
 
   const onKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -42,17 +47,26 @@ export function StepsAccordion({
   };
 
   return (
-    <div className="u-container py-sec">
-      <h2 className="type-h3 max-w-[20ch]">
+    <div ref={rootRef} data-running={running} className="u-container py-sec">
+      <h2 className="type-h3 max-w-[34ch]">
         <Lines lines={headline} />
       </h2>
 
-      <div className="mt-s12 grid items-start gap-gutter lg:grid-cols-2">
-        <div className="flex flex-col gap-s8">
+      <div className="mt-s10 grid items-center gap-gutter lg:grid-cols-2">
+        <div className="flex flex-col border-t border-hairline">
           {steps.map((step, index) => {
             const open = index === active;
             return (
-              <div key={step.title} className="border-t border-hairline pt-s5">
+              <div key={step.title} className="relative border-b border-hairline py-s5">
+                {open ? (
+                  <ProgressLine
+                    key={runKey}
+                    animate={animate}
+                    running={running}
+                    onDone={advance}
+                    className="absolute inset-x-0 -bottom-px z-10 h-0.5 text-lime"
+                  />
+                ) : null}
                 <h3>
                   <button
                     ref={(el) => {
@@ -62,22 +76,22 @@ export function StepsAccordion({
                     id={`${baseId}-button-${index}`}
                     aria-expanded={open}
                     aria-controls={`${baseId}-panel-${index}`}
-                    onClick={() => setActive(index)}
+                    onClick={() => select(index)}
                     onKeyDown={(event) => onKeyDown(event, index)}
-                    className="flex w-full cursor-pointer items-start gap-3 text-left md:gap-16"
+                    className="flex w-full cursor-pointer items-start gap-s5 text-left md:gap-s8"
                   >
-                    <span className="relative mt-[0.4rem] size-3 flex-none md:mt-2.5 md:size-[1.125rem]" aria-hidden="true">
-                      <span className="absolute inset-0 m-auto h-[0.1625rem] w-full bg-current md:h-1" />
+                    <span className="relative mt-[0.45rem] size-3 flex-none md:size-4" aria-hidden="true">
+                      <span className="absolute inset-0 m-auto h-[0.1625rem] w-full bg-current" />
                       <span
                         className={cn(
-                          "absolute inset-0 m-auto h-full w-[0.1625rem] bg-current transition-transform duration-300 ease-[ease] md:w-1",
+                          "absolute inset-0 m-auto h-full w-[0.1625rem] bg-current transition-transform duration-300 ease-[ease]",
                           open && "rotate-90",
                         )}
                       />
                     </span>
                     <span
                       className={cn(
-                        "type-h4 transition-colors duration-[400ms] ease-[ease]",
+                        "type-h5 transition-colors duration-[400ms] ease-[ease]",
                         open ? "text-fg" : "text-fg-faded",
                       )}
                     >
@@ -95,7 +109,9 @@ export function StepsAccordion({
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="type-main max-w-[60ch] pb-s2 pl-[1.7rem] pt-s7 md:pl-[5.4rem]">{step.text}</p>
+                    <p className="type-medium max-w-[52ch] pl-[calc(0.75rem+var(--spacing-s5))] pt-s4 md:pl-[calc(1rem+var(--spacing-s8))]">
+                      {step.text}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -103,20 +119,8 @@ export function StepsAccordion({
           })}
         </div>
 
-        <div className="relative hidden aspect-[16/10] lg:block" aria-hidden="true">
-          {visuals.slice(0, steps.length).map((visual, index) => (
-            <Image
-              key={index}
-              src={visual}
-              alt=""
-              fill
-              sizes="(min-width: 62rem) 45vw, 0px"
-              className={cn(
-                "object-contain transition-opacity duration-[250ms] ease-[ease]",
-                index === active ? "opacity-100" : "opacity-0",
-              )}
-            />
-          ))}
+        <div className="hidden h-[min(21rem,46svh)] lg:block">
+          <Scene key={runKey} spec={scenes[active % scenes.length]} />
         </div>
       </div>
     </div>

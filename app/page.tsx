@@ -43,7 +43,11 @@ export default function HomePage() {
         <StepsAccordion
           headline={home.howItWorks.headline}
           steps={home.howItWorks.steps}
-          visuals={[images.ui.chat, images.ui.flow, images.ui.workspace]}
+          scenes={[
+            { name: "messages", labels: ["Your services", "Your customers", "Your capacity", "A clear plan."] },
+            "pages",
+            "calendar",
+          ]}
         />
       </DarkShape>
       <OfferCards headline={home.offer.headline} cards={home.offer.cards} footnote={guaranteeFootnote} />

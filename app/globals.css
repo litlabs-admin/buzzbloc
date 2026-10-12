@@ -604,6 +604,155 @@
   }
 }
 
+/*
+ * FAQ item (components/sections/FaqItem.tsx, DESIGN.md 4.13 and 6.10).
+ * Collapsed by default. Opens on hover (pointer devices), on keyboard focus, or when
+ * pinned by a tap or key press (data-open). Timings are Hatch's: height .4s on its
+ * FAQ easing, chip colours and chevron .25s.
+ */
+.faq-item {
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s var(--ease-entrance);
+}
+.faq-question {
+  transition: transform 0.3s var(--ease-entrance);
+}
+.faq-chip {
+  background-color: var(--color-faq-chip);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+.faq-chip svg {
+  transition: transform 0.25s ease;
+}
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-hatch);
+}
+.faq-answer > div {
+  overflow: hidden;
+}
+.faq-answer p {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s var(--ease-hatch);
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-subtle);
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-question {
+  transform: translateX(4px);
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-chip {
+  background-color: var(--color-brand-950);
+  color: var(--color-white);
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-chip svg {
+  transform: rotate(180deg);
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-answer {
+  grid-template-rows: 1fr;
+}
+.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-answer p {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.08s;
+}
+@media (hover: hover) {
+  .faq-item:hover {
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--shadow-subtle);
+  }
+  .faq-item:hover .faq-question {
+    transform: translateX(4px);
+  }
+  .faq-item:hover .faq-chip {
+    background-color: var(--color-brand-950);
+    color: var(--color-white);
+  }
+  .faq-item:hover .faq-chip svg {
+    transform: rotate(180deg);
+  }
+  .faq-item:hover .faq-answer {
+    grid-template-rows: 1fr;
+  }
+  .faq-item:hover .faq-answer p {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.08s;
+  }
+}
+
+/*
+ * Scene illustrations (components/illustrations/Scene.tsx, DESIGN.md 6.11).
+ * One-shot animations with a start delay (--d). The tabs and steps components remount
+ * the active scene every 5s, so the section loops. A parent with data-running="false"
+ * (section not yet on screen) holds every animation on its first frame.
+ */
+.sc-in { animation: sc-in 0.6s var(--ease-entrance) var(--d, 0s) both; }
+.sc-pop { animation: sc-pop 0.5s var(--ease-entrance) var(--d, 0s) both; }
+.sc-grow-x { transform-origin: left; animation: sc-grow-x 0.6s ease-out var(--d, 0s) both; }
+.sc-lime { background-color: var(--color-lime); animation: sc-lime 0.4s ease var(--d, 0s) both; }
+.sc-outline { animation: sc-in 0.6s var(--ease-entrance) var(--d, 0s) both, sc-outline 0.5s ease 2.3s both; }
+.sc-press { animation: sc-press 0.35s ease var(--d, 0s) both; }
+.sc-cursor { animation: sc-cursor 1.2s var(--ease-entrance) var(--d, 0s) both; }
+.sc-travel { animation: sc-travel 2.6s var(--ease-dropdown) var(--d, 0s) both; }
+.sc-pulse { animation: story-ping 1.6s ease-out infinite; }
+.sc-type { animation: sc-type 0.8s steps(14) 0.4s both; }
+[data-running="false"] :is(.sc-type, .sc-in, .sc-pop, .sc-grow-x, .sc-lime, .sc-outline, .sc-press, .sc-cursor, .sc-travel) {
+  animation-play-state: paused;
+}
+
+@keyframes sc-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sc-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes sc-pop {
+  0% { opacity: 0; scale: 0.5; }
+  70% { opacity: 1; scale: 1.08; }
+  100% { opacity: 1; scale: 1; }
+}
+@keyframes sc-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes sc-lime {
+  from { background-color: var(--color-grey-200); }
+  to { background-color: var(--color-lime); }
+}
+@keyframes sc-outline {
+  from { box-shadow: 0 0 0 0 var(--color-lime); }
+  to { box-shadow: 0 0 0 3px var(--color-lime); }
+}
+@keyframes sc-press {
+  0%, 100% { scale: 1; }
+  50% { scale: 0.93; }
+}
+@keyframes sc-cursor {
+  0% { opacity: 0; translate: 60px -50px; }
+  20% { opacity: 1; translate: 60px -50px; }
+  60%, 85% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; translate: 0 0; }
+}
+@keyframes sc-travel {
+  0%, 15% { translate: 0 0; }
+  45%, 60% { translate: 100% -1.5rem; }
+  90%, 100% { translate: 200% 0; }
+}
+
 /* Select caret, from the Hatch form styles (DESIGN.md 4.10). */
 .select-caret {
   appearance: none;

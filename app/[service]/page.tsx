@@ -8,7 +8,6 @@ import { Faq } from "@/components/sections/Faq";
 import { ClosingCta } from "@/components/sections/ClosingCta";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { getServicePage, servicePages } from "@/content/services";
-import { images } from "@/content/images";
 import { headings } from "@/content/derived";
 import { breadcrumbJsonLd, pageMetadata, serviceJsonLd } from "@/lib/seo";
 
@@ -28,15 +27,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMetadata(`/${page.slug}`, { title: page.name, description: page.hero.sub });
 }
 
-const visuals = Object.values(images.ui);
-
 export default async function ServiceTemplatePage({ params }: Props) {
   const { service } = await params;
   const page = getServicePage(service);
   if (!page) notFound();
 
   const path = `/${page.slug}`;
-  const visual = visuals[servicePages.indexOf(page) % visuals.length];
 
   return (
     <>
@@ -48,7 +44,7 @@ export default async function ServiceTemplatePage({ params }: Props) {
       <ClosingCta
         headline={page.closing.headline}
         cta={page.closing.cta}
-        visual={visual}
+       
         related={page.related}
         relatedHeading={headings.relatedServices}
       />

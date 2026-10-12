@@ -1,98 +1,59 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/Icon";
 
 /**
- * One FAQ entry (DESIGN.md 4.13). Built on <details> so the answer is in the HTML and
- * works without JavaScript; the script only animates the height, as Hatch does.
+ * One FAQ entry (DESIGN.md 4.13). Collapsed by default.
+ *  - Pointer devices: the item opens while hovered and closes when the pointer leaves.
+ *  - Touch devices: tapping the question toggles it.
+ *  - Keyboard: focusing the question opens it; Enter or Space pins it open.
+ * The answer is always in the HTML. Opening is a CSS grid-row transition, styled in
+ * globals.css under ".faq-item".
  */
 export function FaqItem({ question, answer, joined }: { question: string; answer: string; joined: boolean }) {
-  const detailsRef = useRef<HTMLDetailsElement>(null);
-  const answerRef = useRef<HTMLDivElement>(null);
-  const [opened, setOpened] = useState(false);
+  const panelId = useId();
+  const [pinned, setPinned] = useState(false);
 
-  const onSummaryClick = (event: React.MouseEvent) => {
-    const details = detailsRef.current;
-    const panel = answerRef.current;
-    if (!details || !panel) return;
-    event.preventDefault();
-    panel.ontransitionend = null;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (details.open) {
-      setOpened(false);
-      if (reduceMotion) {
-        details.open = false;
-        return;
-      }
-      panel.style.height = `${panel.scrollHeight}px`;
-      void panel.offsetHeight;
-      requestAnimationFrame(() => {
-        panel.style.height = "0px";
-      });
-      panel.ontransitionend = () => {
-        details.open = false;
-        panel.ontransitionend = null;
-      };
-      return;
-    }
-
-    details.open = true;
-    setOpened(true);
-    if (reduceMotion) {
-      panel.style.height = "auto";
-      return;
-    }
-    panel.style.height = "0px";
-    void panel.offsetHeight;
-    requestAnimationFrame(() => {
-      panel.style.height = `${panel.scrollHeight}px`;
-    });
-    panel.ontransitionend = () => {
-      panel.style.height = "auto";
-      panel.ontransitionend = null;
-    };
+  const onClick = (event: React.MouseEvent) => {
+    // On hover-capable devices a mouse click does nothing, so leaving always collapses.
+    // event.detail is 0 for keyboard activation, which still toggles.
+    const hoverDevice = window.matchMedia("(hover: hover)").matches;
+    if (hoverDevice && event.detail > 0) return;
+    setPinned((value) => !value);
   };
 
   return (
-    <details
-      ref={detailsRef}
-      // Keeps the chip in step when the browser opens the item itself (find in page).
-      onToggle={(event) => {
-        if (event.currentTarget.open) {
-          setOpened(true);
-          if (answerRef.current && !answerRef.current.style.height) answerRef.current.style.height = "auto";
-        }
-      }}
+    <div
+      data-open={pinned}
+      onMouseLeave={() => setPinned(false)}
       className={cn(
-        "flex w-full flex-col overflow-clip bg-white p-4 md:p-6 lg:py-8 lg:pl-8 lg:pr-6",
+        "faq-item w-full bg-white",
         joined
           ? "border-b border-faq-rule first:rounded-t-md last:rounded-b-md last:border-b-0"
           : "rounded-md",
       )}
     >
-      <summary
-        onClick={onSummaryClick}
-        className="-m-4 flex cursor-pointer list-none items-start justify-between gap-4 p-4 md:-m-6 md:p-6 lg:-my-8 lg:-ml-8 lg:-mr-6 lg:py-8 lg:pl-8 lg:pr-6"
-      >
-        <h3 className="text-faq font-bold leading-[1.2]">{question}</h3>
-        <span
-          className={cn(
-            "-mt-[0.15em] flex size-8 flex-none items-center justify-center rounded-sm transition-colors duration-[250ms]",
-            opened ? "bg-brand-950 text-white" : "bg-faq-chip",
-          )}
+      <h3>
+        <button
+          type="button"
+          aria-expanded={pinned}
+          aria-controls={panelId}
+          onClick={onClick}
+          className="flex w-full cursor-pointer items-start justify-between gap-4 p-4 text-left md:p-6 lg:py-7 lg:pl-8 lg:pr-6"
         >
-          <Icon
-            name="chevron"
-            className={cn("size-full transition-transform duration-[250ms] ease-[ease]", opened && "rotate-180")}
-          />
-        </span>
-      </summary>
-      <div ref={answerRef} className="overflow-clip transition-[height] duration-[400ms] ease-hatch">
-        <p className="type-main max-w-[70ch] pt-s5">{answer}</p>
+          <span className="faq-question text-faq font-bold leading-[1.2]">{question}</span>
+          <span className="faq-chip -mt-[0.15em] flex size-8 flex-none items-center justify-center rounded-sm">
+            <Icon name="chevron" className="size-full" />
+          </span>
+        </button>
+      </h3>
+      <div id={panelId} className="faq-answer">
+        <div>
+          <p className="type-main max-w-[70ch] px-4 pb-4 md:px-6 md:pb-6 lg:pb-7 lg:pl-8 lg:pr-6">{answer}</p>
+        </div>
       </div>
-    </details>
+    </div>
   );
 }

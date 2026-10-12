@@ -1,4 +1,4 @@
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Lines } from "@/components/ui/Lines";
 import { images } from "@/content/images";
@@ -6,13 +6,12 @@ import type { Cta } from "@/content/types";
 
 /**
  * Closing call to action (DESIGN.md 4.14, pattern M): dark container, heading and button
- * left, product visual right. Related links and a footnote are optional.
+ * left, the Hatch monitor image right, bleeding off the bottom edge as on Hatch. Related links and a footnote are optional.
  */
 export function ClosingCta({
   headline,
   sub,
   cta,
-  visual = images.ui.chat,
   related,
   relatedHeading,
   footnote,
@@ -20,7 +19,6 @@ export function ClosingCta({
   headline: readonly string[];
   sub?: string;
   cta: Cta;
-  visual?: StaticImageData;
   related?: readonly Cta[];
   relatedHeading?: string;
   footnote?: string;
@@ -33,8 +31,8 @@ export function ClosingCta({
           <div className="section-gradient absolute inset-0" />
         </div>
 
-        <div className="u-container grid items-center gap-s12 py-sec lg:grid-cols-[0.87fr_1fr]">
-          <div className="flex flex-col items-start">
+        <div className="u-container grid items-center gap-s12 py-sec lg:grid-cols-[0.87fr_1fr] lg:pb-0 lg:pt-sec-sm">
+          <div className="flex flex-col items-start lg:pb-sec">
             <h2 className="type-h3 max-w-[24ch]">
               <Lines lines={headline} />
             </h2>
@@ -59,13 +57,12 @@ export function ClosingCta({
             {footnote ? <p className="type-disclaimer mt-s8 max-w-[60ch] text-fg-muted">{footnote}</p> : null}
           </div>
 
-          <div className="relative hidden aspect-[3/2] w-full self-end lg:block">
+          <div className="hidden self-end lg:block">
             <Image
-              src={visual}
+              src={images.ctaMonitor}
               alt=""
-              fill
               sizes="(min-width: 62rem) 50vw, 0px"
-              className="object-contain object-right"
+              className="mt-14 h-auto w-full object-contain"
             />
           </div>
         </div>

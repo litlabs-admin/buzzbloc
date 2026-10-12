@@ -1,3 +1,14 @@
+import type { SceneName } from "@/components/illustrations/Scene";
+import { contact } from "@/content/company";
+import { whatTheyGet } from "@/content/get-leads";
+import { features, serviceCards } from "@/content/home";
+import { packageSection } from "@/content/marketing";
+import { servicePages } from "@/content/services";
+import { primaryLinks } from "@/content/site";
+
+const seo = servicePages.find((page) => page.slug === "seo")!;
+const metaAds = servicePages.find((page) => page.slug === "meta-ads")!;
+
 /**
  * Text the copy document does not supply directly. Everything here is assembled from
  * existing copy lines (page names, section labels, hero subheadings) and is kept in
@@ -96,4 +107,33 @@ export const legal = {
   /** Section headings only. Body text is intentionally absent until real policies exist. */
   sections: ["Section 1", "Section 2", "Section 3", "Section 4", "Section 5"],
   sectionBody: "Placeholder text. The policy wording for this section has not been supplied yet.",
+} as const;
+
+/**
+ * Words shown inside the CSS illustrations (components/illustrations/Scene.tsx).
+ * All are copy lines or fragments of copy sentences, with the source noted.
+ */
+export const sceneLabels = {
+  /** First sentence of the contact form success message. */
+  formSent: `${contact.form.success.split(". ")[0]}.`,
+  defaults: {
+    // Homepage "Websites" card title, contact form button.
+    browser: [serviceCards.cards[0].title, contact.form.button],
+    phone: [serviceCards.cards[0].title, contact.form.button],
+    // Header links.
+    pages: primaryLinks.map((link) => link.label),
+    form: [],
+    // Local SEO page name and its first three "What we handle" titles.
+    search: [seo.name, ...seo.handle.slice(0, 3).map((item) => item.title)],
+    // Marketing page: "See new enquiries, conversations and booked appointments in one pipeline."
+    pipeline: ["New enquiries", "Conversations", "Booked appointments"],
+    // CRM page: "Prompt acknowledgement, booking links and agreed reminders." Get Leads: "Booked into your calendar".
+    messages: ["Prompt acknowledgement", "Booking links", "Agreed reminders", whatTheyGet.items[2].title],
+    // Get Leads "What they get" titles.
+    calendar: [whatTheyGet.items[2].title, whatTheyGet.items[1].title],
+    // Marketing package inclusions.
+    checklist: ["", ...packageSection.included.slice(0, 4)],
+    // Meta Ads headline, homepage feature link label.
+    ad: [metaAds.hero.headline.join(" "), features.linkLabel],
+  } satisfies Record<SceneName, readonly string[]>,
 } as const;

@@ -5,6 +5,7 @@
  */
 import heroBg from "@/public/images/placeholder/hero-bg.webp";
 import ctaBg from "@/public/images/placeholder/cta-bg.webp";
+import ctaMonitor from "@/public/images/placeholder/cta-monitor.webp";
 import darkBg from "@/public/images/placeholder/dark-bg.webp";
 import faqPhoto from "@/public/images/placeholder/faq-photo.webp";
 import photo1 from "@/public/images/placeholder/photo-1.webp";
@@ -28,6 +29,8 @@ import uiWorkspace from "@/public/images/placeholder/ui-workspace.webp";
 export const images = {
   heroBg,
   ctaBg,
+  /** Hatch's monitor image, used at the owner's request. It shows Hatch's product and sample figures: replace before launch. */
+  ctaMonitor,
   darkBg,
   faqPhoto,
   photos: [photo1, photo2, photo3, photo4, photo5, photo6, photo7, photo8, photo9],

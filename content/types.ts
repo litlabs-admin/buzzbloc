@@ -1,5 +1,6 @@
 import type { StaticImageData } from "next/image";
 import type { IconName } from "@/components/ui/Icon";
+import type { SceneSpec } from "@/components/illustrations/Scene";
 
 export type Cta = { label: string; href: string };
 
@@ -25,8 +26,10 @@ export type OfferCard = {
 
 export type TabItem = TitledText & {
   icon: IconName;
-  photo: StaticImageData;
-  overlay: StaticImageData;
+  /** CSS illustration shown for this item. */
+  scene: SceneSpec;
+  /** Background photo, used by the dark tab panels only. */
+  photo?: StaticImageData;
 };
 
 export type ServicePage = {

@@ -1,4 +1,3 @@
-import { images } from "@/content/images";
 import { contactHref } from "@/content/site";
 import type { Faq, HeroContent, TabItem, TitledText } from "@/content/types";
 
@@ -43,43 +42,37 @@ export const featureSection = {
       title: "Design that fits your business",
       text: "A consistent look built around your branding and services.",
       icon: "market",
-      photo: images.photos[0],
-      overlay: images.ui.chat,
+      scene: "browser",
     },
     {
       title: "Made for mobile",
       text: "Pages that are easy to read and use on smaller screens.",
       icon: "scale-up",
-      photo: images.photos[1],
-      overlay: images.ui.messages,
+      scene: "phone",
     },
     {
       title: "Clear service pages",
       text: "Help customers find the information relevant to them.",
       icon: "book",
-      photo: images.photos[3],
-      overlay: images.ui.dropdown,
+      scene: "pages",
     },
     {
       title: "Enquiry forms & booking connections",
       text: "Give interested visitors a simple way to contact you.",
       icon: "paper",
-      photo: images.photos[0],
-      overlay: images.ui.chat,
+      scene: "form",
     },
     {
       title: "SEO foundations",
       text: "Page titles, headings and structure that help search engines understand your site.",
       icon: "double-tick",
-      photo: images.photos[1],
-      overlay: images.ui.messages,
+      scene: { name: "search", labels: ["SEO foundations", "Page titles", "Headings", "Structure"] },
     },
     {
       title: "Connected lead capture",
       text: "Send website enquiries into your agreed inbox or CRM.",
       icon: "swap",
-      photo: images.photos[3],
-      overlay: images.ui.dropdown,
+      scene: "pipeline",
     },
   ] satisfies TabItem[],
 } as const;
