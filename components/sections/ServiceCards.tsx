@@ -18,18 +18,18 @@ export function ServiceCards({
     <section id={id} className="py-sec">
       <div className="u-container">
         <h2 className="type-h3 mx-auto max-w-[27ch] text-center">{headline}</h2>
-        <ul className="mt-s12 grid gap-s5 md:grid-cols-3">
+        <ul className="mt-s12 grid gap-s5 lg:grid-cols-3">
           {cards.map((card) => (
             <li key={card.cta.href}>
               <article
                 data-theme="dark"
-                className="group relative flex h-full min-h-[22rem] flex-col justify-between gap-s8 overflow-hidden rounded-sm bg-ash-300 p-s7"
+                className="group relative flex h-full min-h-[17rem] lg:min-h-[22rem] flex-col justify-between gap-s8 overflow-hidden rounded-sm bg-ash-300 p-s7"
               >
                 <Image
                   src={card.image}
                   alt=""
                   fill
-                  sizes="(min-width: 48rem) 33vw, 100vw"
+                  sizes="(min-width: 62rem) 33vw, 100vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-black/50" aria-hidden="true" />

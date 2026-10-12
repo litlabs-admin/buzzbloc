@@ -23,7 +23,7 @@ export function HeroStory() {
     <div
       aria-hidden="true"
       data-theme="light"
-      className="story relative hidden aspect-square h-[min(32rem,62svh)] flex-none select-none lg:block"
+      className="story relative mx-auto aspect-square h-[26rem] flex-none select-none [zoom:0.72] sm:[zoom:0.9] nav:mx-0 nav:h-[min(32rem,62svh)] nav:[zoom:1]"
     >
       {/* 1. The website */}
       <div className="story-site absolute left-[6%] top-0 w-[66%]">

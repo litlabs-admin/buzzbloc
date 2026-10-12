@@ -4,11 +4,11 @@ import type { TitledText } from "@/content/types";
 export function PointsPanel({ items }: { items: readonly TitledText[] }) {
   return (
     <div className="rounded-lg bg-surface-grey px-s9 py-s8">
-      <ul className="grid gap-s5 lg:grid-cols-3">
+      <ul className="grid gap-s5 md:grid-cols-3">
         {items.map((item) => (
           <li
             key={item.title}
-            className="border-hairline max-lg:border-b max-lg:pb-s5 max-lg:last:border-b-0 max-lg:last:pb-0 lg:border-l lg:pl-s5 lg:text-center lg:first:border-l-0 lg:first:pl-0"
+            className="border-hairline max-md:border-b max-md:pb-s5 max-md:last:border-b-0 max-md:last:pb-0 md:border-l md:pl-s5 md:text-center md:first:border-l-0 md:first:pl-0"
           >
             <h3 className="type-h5">{item.title}</h3>
             <p className="type-main mt-s4">{item.text}</p>

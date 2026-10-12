@@ -14,7 +14,7 @@ import type { TitledText } from "@/content/types";
  * (the lime line below it is the timer), then the next opens, looping back to the first.
  * Choosing a step opens it and restarts its 5 seconds. Hover does nothing.
  * Timing logic is in lib/useAutoCycle.ts. Every answer stays in the HTML.
- * Sized to fit one screen on desktop; the illustration is hidden below lg.
+ * Sized to fit one screen on desktop; below lg the illustration sits under the steps.
  */
 export function StepsAccordion({
   headline,
@@ -52,7 +52,7 @@ export function StepsAccordion({
         <Lines lines={headline} />
       </h2>
 
-      <div className="mt-s10 grid items-center gap-gutter lg:grid-cols-2">
+      <div className="mt-s10 grid items-center gap-s9 lg:grid-cols-2 lg:gap-gutter">
         <div className="flex flex-col border-t border-hairline">
           {steps.map((step, index) => {
             const open = index === active;
@@ -119,7 +119,7 @@ export function StepsAccordion({
           })}
         </div>
 
-        <div className="hidden h-[min(21rem,46svh)] lg:block">
+        <div className="h-[17rem] sm:h-[19rem] lg:h-[min(21rem,46svh)]">
           <Scene key={runKey} spec={scenes[active % scenes.length]} />
         </div>
       </div>

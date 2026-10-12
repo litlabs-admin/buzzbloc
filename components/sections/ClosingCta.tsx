@@ -31,7 +31,7 @@ export function ClosingCta({
           <div className="section-gradient absolute inset-0" />
         </div>
 
-        <div className="u-container grid items-center gap-s12 py-sec lg:grid-cols-[0.87fr_1fr] lg:pb-0 lg:pt-sec-sm">
+        <div className="u-container grid items-center gap-s9 pt-sec lg:grid-cols-[0.87fr_1fr] lg:gap-s12 lg:pt-sec-sm">
           <div className="flex flex-col items-start lg:pb-sec">
             <h2 className="type-h3 max-w-[24ch]">
               <Lines lines={headline} />
@@ -57,12 +57,12 @@ export function ClosingCta({
             {footnote ? <p className="type-disclaimer mt-s8 max-w-[60ch] text-fg-muted">{footnote}</p> : null}
           </div>
 
-          <div className="hidden self-end lg:block">
+          <div className="mx-auto w-full max-w-[26rem] self-end lg:max-w-none">
             <Image
               src={images.ctaMonitor}
               alt=""
-              sizes="(min-width: 62rem) 50vw, 0px"
-              className="mt-14 h-auto w-full object-contain"
+              sizes="(min-width: 62rem) 50vw, 26rem"
+              className="h-auto w-full object-contain lg:mt-14"
             />
           </div>
         </div>

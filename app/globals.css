@@ -606,8 +606,8 @@
 
 /*
  * FAQ item (components/sections/FaqItem.tsx, DESIGN.md 4.13 and 6.10).
- * Collapsed by default. Opens on hover (pointer devices), on keyboard focus, or when
- * pinned by a tap or key press (data-open). Timings are Hatch's: height .4s on its
+ * Collapsed by default. FaqList sets data-open on the one open item (see FaqItem.tsx
+ * for why this is state and not :hover). Timings are Hatch's: height .4s on its
  * FAQ easing, chip colours and chevron .25s.
  */
 .faq-item {
@@ -643,53 +643,28 @@
     opacity 0.3s ease,
     transform 0.4s var(--ease-hatch);
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) {
+.faq-item[data-open="true"] {
   position: relative;
   z-index: 1;
   box-shadow: var(--shadow-subtle);
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-question {
+.faq-item[data-open="true"] .faq-question {
   transform: translateX(4px);
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-chip {
+.faq-item[data-open="true"] .faq-chip {
   background-color: var(--color-brand-950);
   color: var(--color-white);
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-chip svg {
+.faq-item[data-open="true"] .faq-chip svg {
   transform: rotate(180deg);
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-answer {
+.faq-item[data-open="true"] .faq-answer {
   grid-template-rows: 1fr;
 }
-.faq-item:is([data-open="true"], :has(:focus-visible)) .faq-answer p {
+.faq-item[data-open="true"] .faq-answer p {
   opacity: 1;
   transform: translateY(0);
   transition-delay: 0.08s;
-}
-@media (hover: hover) {
-  .faq-item:hover {
-    position: relative;
-    z-index: 1;
-    box-shadow: var(--shadow-subtle);
-  }
-  .faq-item:hover .faq-question {
-    transform: translateX(4px);
-  }
-  .faq-item:hover .faq-chip {
-    background-color: var(--color-brand-950);
-    color: var(--color-white);
-  }
-  .faq-item:hover .faq-chip svg {
-    transform: rotate(180deg);
-  }
-  .faq-item:hover .faq-answer {
-    grid-template-rows: 1fr;
-  }
-  .faq-item:hover .faq-answer p {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.08s;
-  }
 }
 
 /*
@@ -774,4 +749,14 @@
     transform: scaleX(1);
   }
 }
+}
+
+/*
+ * Rounded "shape" sections sit inset from the viewport edge (DESIGN.md 3.3). Their inner
+ * container gives that inset back, as Hatch's .outer-container_slot does, so text inside
+ * a shape lines up exactly with text in the plain sections above and below it.
+ * Unlayered on purpose: it has to win over the u-container utilities.
+ */
+.shape [class*="u-container"] {
+  width: calc(100% + var(--spacing-edge) * 2 - var(--spacing-margin) * 2);
 }

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 import { JsonLd } from "@/components/ui/JsonLd";
-import { FaqItem } from "@/components/sections/FaqItem";
+import { FaqList } from "@/components/sections/FaqItem";
 import { images } from "@/content/images";
 import { headings } from "@/content/derived";
 import { contactHref } from "@/content/site";
@@ -33,11 +33,7 @@ export function Faq({
           <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch lg:justify-between">
             <div className={cn("flex w-full flex-col gap-8", !joined && "lg:order-last lg:max-w-[48rem]")}>
               <h2 className="type-h3">{heading}</h2>
-              <div className={cn("flex w-full flex-col", !joined && "gap-2")}>
-                {faqs.map((faq) => (
-                  <FaqItem key={faq.q} question={faq.q} answer={faq.a} joined={joined} />
-                ))}
-              </div>
+              <FaqList faqs={faqs} joined={joined} />
               {footnote ? <p className="type-disclaimer max-w-[80ch] text-fg-muted">{footnote}</p> : null}
             </div>
 
