@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+build/
+.vercel/
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Reference material, not part of the app
+hatch-src/
+www.usehatchapp.com.zip
+screencapture-*.pdf
